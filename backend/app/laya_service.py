@@ -19,6 +19,11 @@ MODELO = "multilingual"
 # o que, com max_loaded=1, descarregaria o multilíngue e baixaria outro modelo.
 IDIOMA = "pt"
 
+# As perguntas abaixo são a variante "misto_original", escolhida com scripts/avaliar_perguntas.py
+# sobre os chamados rotulados de scripts/chamados_rotulados.json (veja a seção "Ajuste das
+# perguntas" do README): o setor continua com a pergunta original, e a urgência e o prazo usam a
+# versão descritiva, que cita entre crases o campo do estado que o modelo lê (como nos presets
+# do Laya). O Laya responde cada pergunta de forma independente, então dá para combiná-las.
 SETORES = {
     "rede_wifi": "internet, Wi-Fi do campus, conexão caindo, rede lenta",
     "sistema_academico": "portal do aluno, notas, faltas, matrícula, envio de atividades no sistema",
@@ -43,16 +48,17 @@ PERGUNTAS = {
     },
     "urgencia": {
         "type": "score",
-        "instructions": "Qual é a urgência deste chamado para o aluno?",
+        "instructions": "Qual é a urgência do problema descrito em `mensagem`?",
         "criteria": [
-            "baixa: pode esperar alguns dias",
-            "média: atrapalha, mas o aluno tem alternativa",
-            "alta: impede uma aula, prova ou entrega hoje",
+            "baixa: dúvida, sugestão ou problema que pode esperar alguns dias",
+            "média: atrapalha, mas há alternativa ou o prazo não é hoje",
+            "alta: impede agora uma aula, prova ou entrega de hoje",
         ],
     },
     "tem_prazo": {
         "type": "noul",
-        "instructions": "O aluno menciona um prazo, entrega ou prova próxima?",
+        "instructions": "A `mensagem` cita um prazo ou compromisso próximo, como entrega, prova ou aula hoje ou amanhã?",
+        "criteria": {"false": "não cita prazo, data nem horário", "true": "cita prazo, data ou horário próximo"},
     },
 }
 

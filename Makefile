@@ -3,7 +3,7 @@
 # Ports: frontend http://localhost:8700, backend http://localhost:8701 (see "Portas" in the README).
 
 .DEFAULT_GOAL := help
-.PHONY: help up ps logs test smoke shell db reset-db stop down clean
+.PHONY: help up ps logs test smoke eval shell db reset-db stop down clean
 
 help: ## List the commands
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F ':.*## ' '{printf "  make %-9s %s\n", $$1, $$2}'
@@ -22,6 +22,9 @@ test: ## Run the backend unit tests
 
 smoke: ## Send the 4 sample tickets to the running API
 	docker compose exec backend python scripts/smoke_test.py
+
+eval: ## Compare question variants on the labeled tickets (loads a 2nd model copy)
+	docker compose exec backend python scripts/avaliar_perguntas.py
 
 shell: ## Open a shell in the backend
 	docker compose exec backend bash

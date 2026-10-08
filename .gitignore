@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+
+# Node
+node_modules/
+dist/
+
+# Dados locais
+backend/dados/
+*.db
+
+# Variáveis de ambiente
+.env
+
+# Enunciado e plano de implementação (fica só na máquina local)
+PROMPT_CLAUDE_CODE.md

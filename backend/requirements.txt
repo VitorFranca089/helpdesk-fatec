@@ -1,0 +1,11 @@
+# O PyTorch CPU-only é instalado ANTES deste arquivo, pelo índice da CPU:
+#   pip install torch --index-url https://download.pytorch.org/whl/cpu
+# Assim o `laya` encontra o torch já instalado e a imagem não puxa o CUDA.
+laya==0.4.0
+fastapi>=0.115,<1
+uvicorn[standard]>=0.30,<1
+sqlalchemy>=2.0,<3
+pydantic>=2.7,<3
+
+# Testes
+pytest>=8,<9

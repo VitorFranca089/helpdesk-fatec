@@ -1,0 +1,47 @@
+# TriaDesk: backend (FastAPI + Laya + SQLite) e frontend (React servido pelo nginx).
+#
+# Portas no host, só em 127.0.0.1 (veja a seção "Portas" do README):
+#   frontend  http://localhost:8700
+#   backend   http://localhost:8701   (API em /api, documentação em /docs)
+# Escolhidas para não colidir com os outros projetos da máquina, que usam
+# 8000, 5173, 3000, 5000, 5432, 5433, 6379 e 7700. Mude no .env (FRONTEND_PORT, BACKEND_PORT).
+
+services:
+  backend:
+    build: ./backend
+    # --reload: reinicia ao editar o código (bind mount abaixo); o modelo recarrega do cache.
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    ports:
+      - "127.0.0.1:${BACKEND_PORT:-8701}:8000"
+    environment:
+      DATABASE_URL: sqlite:////data/triadesk.db
+      HF_HOME: /models
+      LIMIAR_CONFIANCA: ${LIMIAR_CONFIANCA:-0.60}
+      LAYA_THREADS: ${LAYA_THREADS:-4}
+      CORS_ORIGENS: http://localhost:${FRONTEND_PORT:-8700},http://127.0.0.1:${FRONTEND_PORT:-8700}
+    volumes:
+      - ./backend:/app
+      - dados:/data        # arquivo SQLite
+      - modelos:/models    # cache do Hugging Face: o modelo só é baixado na primeira subida
+    healthcheck:
+      # /api/health responde 503 até o Laya carregar, e o urlopen falha com 503.
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health', timeout=5)"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 10m   # a primeira subida baixa o modelo
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: http://localhost:${BACKEND_PORT:-8701}
+    ports:
+      - "127.0.0.1:${FRONTEND_PORT:-8700}:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+
+volumes:
+  dados:
+  modelos:
